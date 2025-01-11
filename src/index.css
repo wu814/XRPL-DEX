@@ -96,3 +96,15 @@ select:focus {
   outline: none;
   box-shadow: 0 0 4px rgba(76, 175, 80, 0.5); /* Subtle green glow on focus */
 }
+
+.scrollable-result {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 200px; /* Fixed height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  white-space: pre-wrap; /* Ensure newlines in content are respected */
+}

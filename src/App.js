@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as xrpl from 'xrpl';
 
 import IssuerDropdown from "./IssuerDropdown.js";
+import CurrencyDropdown from "./CurrencyDrowdown.js";
 
 const App = () => {
   const [currencyGet, setCurrencyGet] = useState("");
@@ -36,6 +37,7 @@ const App = () => {
     }
   }
 
+
   function decideTakerPaysIssuer(){
     if (currencyPay === "XRP") {
       const takerPays = {
@@ -53,7 +55,6 @@ const App = () => {
       return takerPays;
     }
   }
-
 
 
   const handleFetchOffers = async () => {
@@ -114,6 +115,7 @@ const App = () => {
       await client.disconnect();
     }
   };
+
 
   const handleFetchBidOffers = async () => {
     const client = new xrpl.Client("wss://s1.ripple.com");
@@ -227,12 +229,17 @@ const App = () => {
         } 
         else {
           matchedOffers.push("Remaining orders too expensive.");
+          matchedOffers.push(`Amount Filled: ${running_total} ${takerGets.currency}`);
+          matchedOffers.push(
+            `Total Price: ${total_price} ${takerPays.currency}`
+          );
           break;
         }
       }
       setOrderbookResult(matchedOffers.join("\n"));
     }
   };
+
 
   // this is looking for potential ask offer we can fill
   const lookUpAskOffers = async (client, wallet, takerGets, takerPays) => {
@@ -253,7 +260,7 @@ const App = () => {
 
     console.log(offers);
     let lowestQualityOffers = [];
-    for (let i = 0; i < Math.min(offers.length, 10); i++) {
+    for (let i = 0; i < Math.min(offers.length, 20); i++) {
       const o = offers[i];
       // Check if required properties exist
       if (o?.quality && o?.TakerPays && o?.TakerGets) {
@@ -286,6 +293,7 @@ const App = () => {
     setOrderbookResult(lowestQualityOffers.join("\n"));
   };
 
+
   // this is looking for current bid offers we can compete with if we make one
   const lookUpBidOffers = async (client, wallet, weWant, weSpend) => {
     const orderbook_resp = await client.request({
@@ -305,7 +313,7 @@ const App = () => {
 
     console.log(offers);
     let lowestQualityOffers = [];
-    for (let i = 0; i < Math.min(offers.length, 10); i++) {
+    for (let i = 0; i < Math.min(offers.length, 20); i++) {
       const o = offers[i];
       // Check if required properties exist
       if (o?.quality && o?.TakerPays && o?.TakerGets) {
@@ -344,17 +352,10 @@ const App = () => {
       <h1>XRPL Offer Book</h1>
       
       <div>
+        <CurrencyDropdown label="Currency We Want:" selectedCurrency={currencyGet} onCurrencyChange={setCurrencyGet}/>
+        <IssuerDropdown label="Issuer:" currency={currencyGet} selectedIssuerAddress={setIssuerGet}/>
         <label>
-          Taker Gets Currency:
-          <input
-            type="text"
-            value={currencyGet}
-            onChange={(e) => setCurrencyGet(e.target.value)}
-          />
-        </label>
-        <IssuerDropdown label="Taker Gets Issuer:" currency={currencyGet} selectedIssuerAddress={setIssuerGet}/>
-        <label>
-          Taker Gets Value:
+          Amount We Want:
           <input
             type="text"
             value={valueGet}
@@ -364,17 +365,10 @@ const App = () => {
       </div>
       
       <div>
+        <CurrencyDropdown label="Currency We Pay:" selectedCurrency={currencyPay} onCurrencyChange={setCurrencyPay}/>
+        <IssuerDropdown label="Issuer:" currency={currencyPay} selectedIssuerAddress={setIssuerPay}/>
         <label>
-          Taker Pays Currency:
-          <input
-            type="text"
-            value={currencyPay}
-            onChange={(e) => setCurrencyPay(e.target.value)}
-          />
-        </label>
-        <IssuerDropdown label="Taker Pays Issuer:" currency={currencyPay} selectedIssuerAddress={setIssuerPay}/>
-        <label>
-          Taker Pays Value:
+          Amount We Pay:
           <input
             type="text"
             value={valuePay}
@@ -387,8 +381,11 @@ const App = () => {
       <button onClick={handleFetchAskOffers}>Fetch Ask Offers</button>
       <button onClick={handleFetchBidOffers}>Fetch Bid Offers</button>
       
-      <pre>{orderbookResult}</pre>
+      <div className="scrollable-result">
+        <pre>{orderbookResult}</pre>
+      </div>
     </div>
+
   );
 };
 
