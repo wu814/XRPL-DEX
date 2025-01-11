@@ -1,3 +1,5 @@
+########
+In this project, the quality field displayed is the smaller number between owner_funds and taker_gets in the offer object, this gave a better picture on the exact amount of currency a user would get after taking the offer.
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
